@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camp Wildwood: The Expedition Officer</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts: Fredoka & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for cute icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+        .font-game {
+            font-family: 'Fredoka', sans-serif;
+        }
+        /* Campfire glow effect */
+        .fire-glow {
+            box-shadow: 0 0 60px 20px rgba(249, 115, 22, 0.2);
+            animation: pulse 3s infinite alternate;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- Top Navigation & Dashboard Stats -->
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-emerald-600 rounded-xl text-white shadow-lg shadow-emerald-900/30">
+                    <i class="fa-solid fa-tents text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold font-game tracking-wide text-emerald-400">Camp Wildwood</h1>
+                    <p class="text-xs text-slate-400">Communicative Grammar Adventure &bull; <span class="text-amber-400">need vs. needs</span></p>
+                </div>
+            </div>
+            
+            <!-- Game Stats Dashboard -->
+            <div class="flex items-center gap-6 bg-slate-950 px-5 py-2.5 rounded-2xl border border-slate-800">
+                <div class="text-center">
+                    <span class="block text-[10px] uppercase tracking-wider text-slate-400 font-bold">Expedition Score</span>
+                    <span id="score-val" class="text-lg font-bold text-amber-400 font-game">0</span>
+                </div>
+                <div class="w-px h-8 bg-slate-800"></div>
+                <div class="text-center">
+                    <span class="block text-[10px] uppercase tracking-wider text-slate-400 font-bold">Camp Happiness</span>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                        <div class="w-16 bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div id="happiness-bar" class="bg-emerald-500 h-full w-full transition-all duration-500"></div>
+                        </div>
+                        <span id="happiness-val" class="text-xs font-bold text-emerald-400">100%</span>
+                    </div>
+                </div>
+                <div class="w-px h-8 bg-slate-800"></div>
+                <div class="text-center">
+                    <span class="block text-[10px] uppercase tracking-wider text-slate-400 font-bold font-game text-rose-400 flex items-center gap-1 justify-center">
+                        🐍 Helper
+                    </span>
+                    <span class="text-xs text-slate-300">Active</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Interactive Space -->
+    <main class="max-w-7xl mx-auto p-4 md:p-6 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        
+        <!-- Left Side: Camp Visual Simulation Panel (5 Cols) -->
+        <section class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden min-h-[400px]">
+            <!-- Decorative forest background effect -->
+            <div class="absolute inset-0 bg-gradient-to-b from-teal-950/20 via-slate-900/40 to-slate-900 pointer-events-none"></div>
+            
+            <!-- Top Status/Location info -->
+            <div class="relative z-10 flex justify-between items-start w-full">
+                <span class="bg-slate-950/80 border border-slate-800 backdrop-blur text-xs text-emerald-400 px-3 py-1.5 rounded-full font-semibold flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Location: Camp Supply Depot
+                </span>
+                <button onclick="playAmbientSound()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2.5 rounded-full transition-all hover:scale-105" title="Play campfire ambient sounds">
+                    <i class="fa-solid fa-fire-burner animate-pulse text-amber-500"></i>
+                </button>
+            </div>
+
+            <!-- Central visual stage with campfire and characters -->
+            <div class="relative flex flex-col items-center justify-center my-8 z-10">
+                <div class="relative w-full max-w-[280px] h-48 flex items-end justify-center">
+                    
+                    <!-- Fireplace Visual -->
+                    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-16 h-16 fire-glow rounded-full flex items-center justify-center">
+                        <div class="text-3xl animate-bounce text-orange-500 filter drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]">🔥</div>
+                        <!-- Wooden Logs -->
+                        <div class="absolute bottom-0 w-12 h-3 bg-amber-900 rounded border-t border-amber-950"></div>
+                    </div>
+
+                    <!-- Character Canvas / Avatars -->
+                    <div class="relative z-10 w-full flex justify-around items-end">
+                        
+                        <!-- Sophia Avatar (Explorer) -->
+                        <div id="avatar-sophia" class="flex flex-col items-center transition-all duration-300 translate-y-2 opacity-50 scale-90">
+                            <!-- Talk bubble icon -->
+                            <div class="bubble-notif hidden bg-amber-500 text-slate-950 text-[10px] px-2 py-0.5 rounded-full font-bold mb-2 animate-bounce">
+                                Needs Help!
+                            </div>
+                            <div class="w-16 h-16 rounded-full bg-amber-600 border-2 border-amber-300 shadow-lg flex items-center justify-center text-3xl overflow-hidden relative">
+                                👩‍🌾
+                            </div>
+                            <span class="text-xs font-semibold mt-1 bg-slate-950 px-2 py-0.5 rounded text-amber-300">Sophia</span>
+                        </div>
+
+                        <!-- Rusty Avatar (Camp Dog) -->
+                        <div id="avatar-rusty" class="flex flex-col items-center transition-all duration-300 translate-y-2 opacity-50 scale-90">
+                            <div class="bubble-notif hidden bg-amber-500 text-slate-950 text-[10px] px-2 py-0.5 rounded-full font-bold mb-2 animate-bounce">
+                                Woof!
+                            </div>
+                            <div class="w-14 h-14 rounded-full bg-yellow-700 border-2 border-yellow-500 shadow-lg flex items-center justify-center text-3xl overflow-hidden relative">
+                                🐕
+                            </div>
+                            <span class="text-xs font-semibold mt-1 bg-slate-950 px-2 py-0.5 rounded text-yellow-400">Rusty 🐍</span>
+                        </div>
+
+                        <!-- Leo Avatar (Camp Chef) -->
+                        <div id="avatar-leo" class="flex flex-col items-center transition-all duration-300 translate-y-2 opacity-50 scale-90">
+                            <div class="bubble-notif hidden bg-amber-500 text-slate-950 text-[10px] px-2 py-0.5 rounded-full font-bold mb-2 animate-bounce">
+                                Starving!
+                            </div>
+                            <div class="w-16 h-16 rounded-full bg-sky-600 border-2 border-sky-300 shadow-lg flex items-center justify-center text-3xl overflow-hidden relative">
+                                👨‍🍳
+                            </div>
+                            <span class="text-xs font-semibold mt-1 bg-slate-950 px-2 py-0.5 rounded text-sky-300">Leo 🐍</span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Backpack Supply Counter -->
+            <div class="relative z-10 bg-slate-950/80 backdrop-blur p-4 rounded-2xl border border-slate-800">
+                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-2.5 flex items-center gap-1.5">
+                    <i class="fa-solid fa-backpack text-emerald-400"></i> Depot Supply Inventory (Allocatable)
+                </span>
+                <div class="grid grid-cols-4 gap-2 text-center text-xs">
+                    <div class="bg-slate-900 p-2 rounded-xl border border-slate-800">
+                        <span class="text-lg block">🔦</span>
+                        <span class="text-slate-400 font-medium">Flashlight</span>
+                    </div>
+                    <div class="bg-slate-900 p-2 rounded-xl border border-slate-800">
+                        <span class="text-lg block">🍎</span>
+                        <span class="text-slate-400 font-medium">Apples</span>
+                    </div>
+                    <div class="bg-slate-900 p-2 rounded-xl border border-slate-800">
+                        <span class="text-lg block">💧</span>
+                        <span class="text-slate-400 font-medium">Water</span>
+                    </div>
+                    <div class="bg-slate-900 p-2 rounded-xl border border-slate-800">
+                        <span class="text-lg block">🍊</span>
+                        <span class="text-slate-400 font-medium">Oranges</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Side: Game Interaction Engine & Terminal (7 Cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-4">
+            
+            <!-- Game Mode Controller Tabs -->
+            <div class="bg-slate-900 border border-slate-800 p-2 rounded-2xl flex gap-2">
+                <button id="tab-adventure" onclick="setGameMode('adventure')" class="flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-emerald-600 text-white shadow shadow-emerald-950">
+                    <i class="fa-solid fa-compass"></i>
+                    <span>Camp Adventure Mode (Quest)</span>
+                </button>
+                <button id="tab-ai-chat" onclick="setGameMode('ai-chat')" class="flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:bg-slate-800 hover:text-slate-200 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>AI Free-Talk Cabin</span>
+                </button>
+            </div>
+
+            <!-- Dynamic Interface Area -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 flex-grow flex flex-col justify-between min-h-[450px]">
+                
+                <!-- Adventure Quest Screen Container -->
+                <div id="adventure-screen" class="flex flex-col justify-between h-full flex-grow">
+                    
+                    <!-- Quest Scenario Box -->
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-exclamation"></i>
+                                <span id="quest-tag">Quest 1: Darkness in the Forest</span>
+                            </span>
+                            <span id="quest-prog" class="text-xs text-slate-400">Step 1 of 5</span>
+                        </div>
+
+                        <!-- Dialogue bubble and Character Speaking -->
+                        <div class="bg-slate-950 border border-slate-800 p-5 rounded-2xl relative mb-6">
+                            <!-- Small speaker label -->
+                            <div class="absolute -top-3 left-4 bg-slate-800 text-emerald-400 text-xs font-semibold px-2.5 py-0.5 rounded border border-slate-700 font-game" id="character-speaker">
+                                Sophia
+                            </div>
+                            <!-- Character Quote -->
+                            <p id="character-dialogue" class="text-slate-200 text-base italic mt-1 leading-relaxed">
+                                "The sun is down, and I can't find my flashlight inside my dark tent! 🏕️ Sophia 🐍 is very scared."
+                            </p>
+                        </div>
+
+                        <!-- Grammar Concept Insight Box (Differentiation Support) -->
+                        <div class="bg-slate-950/50 border-l-4 border-amber-500 p-4 rounded-r-xl mb-6">
+                            <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-lightbulb"></i> Grammar &amp; Communication Clue
+                            </h4>
+                            <p id="grammar-clue" class="text-xs text-slate-300 mt-1 leading-relaxed">
+                                Look at the <strong>🐍 Snake Icon</strong>! When talking about <span class="text-emerald-400">Sophia (she)</span>, the verb needs an <strong>-s</strong> because she is single! But wait, does she need a flashlight or fruit right now? Match grammar AND communication logic!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Communicative Options Layout -->
+                    <div class="mt-auto">
+                        <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-3">
+                            Choose the most grammatically correct &amp; communicatively helpful response:
+                        </span>
+                        
+                        <div id="options-container" class="grid grid-cols-1 gap-3">
+                            <!-- Filled dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Live Dialogue Sandbox Screen Container -->
+                <div id="ai-chat-screen" class="hidden flex-col justify-between h-full flex-grow">
+                    
+                    <!-- AI Character Selector -->
+                    <div class="mb-4">
+                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-2 tracking-wider">Select Camp Character to Chat With:</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setAiCharacter('Sophia')" id="btn-char-sophia" class="py-2 px-3 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-400 text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+                                <span>👩‍🌾 Sophia</span>
+                            </button>
+                            <button onclick="setAiCharacter('Leo')" id="btn-char-leo" class="py-2 px-3 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 text-xs font-semibold flex items-center justify-center gap-2 transition-all hover:border-slate-700">
+                                <span>👨‍🍳 Leo 🐍</span>
+                            </button>
+                            <button onclick="setAiCharacter('Rusty')" id="btn-char-rusty" class="py-2 px-3 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 text-xs font-semibold flex items-center justify-center gap-2 transition-all hover:border-slate-700">
+                                <span>🐕 Rusty 🐍</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- AI Chat Area -->
+                    <div class="flex-grow flex flex-col justify-between h-full">
+                        
+                        <!-- Chat Conversation History Box -->
+                        <div id="ai-chat-log" class="flex-grow bg-slate-950 border border-slate-800 rounded-2xl p-4 overflow-y-auto mb-4 space-y-4 max-h-[250px]">
+                            <!-- System Greeting message -->
+                            <div class="flex items-start gap-3 bg-slate-900 p-3 rounded-xl border border-slate-800/80">
+                                <span class="text-xl">👩‍🌾</span>
+                                <div>
+                                    <span class="text-xs font-bold text-emerald-400 block font-game">Sophia</span>
+                                    <p class="text-xs text-slate-300 mt-1">Hello Expedition Officer! I am getting ready for the wilderness. Ask me what I need, or let me know what you can supply!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Text Input Panel -->
+                        <div class="flex gap-2">
+                            <input id="ai-chat-input" type="text" placeholder="Type naturally, e.g. 'Do you need some apples?' or 'He needs water.'" class="flex-grow bg-slate-950 border border-slate-800 focus:border-emerald-500 outline-none rounded-2xl px-4 py-3 text-sm text-slate-200 placeholder-slate-500 transition-all">
+                            <button onclick="sendAiMessage()" id="ai-send-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm px-5 py-3 rounded-2xl flex items-center gap-2 transition-all">
+                                <span>Send</span>
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+
+                        <!-- Feedback Panel from Coach (Gemini integration output wrapper) -->
+                        <div id="ai-coach-panel" class="hidden mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-2.5">
+                            <span class="text-base">💡</span>
+                            <div>
+                                <span class="text-[10px] uppercase font-bold text-amber-400 block">Camp Coach Feedback</span>
+                                <p id="ai-coach-text" class="text-xs text-slate-300 mt-0.5">Correct usage observed!</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom Communicative Dialog / Modal overlay -->
+    <div id="status-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl relative overflow-hidden">
+            <!-- Glowing effect -->
+            <div id="modal-glow" class="absolute -top-12 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full blur-3xl opacity-20 pointer-events-none"></div>
+            
+            <div id="modal-icon" class="text-5xl mb-4">🎉</div>
+            <h3 id="modal-title" class="text-xl font-bold font-game text-emerald-400 mb-2">Great Expedition!</h3>
+            <p id="modal-desc" class="text-slate-300 text-sm leading-relaxed mb-6">
+                Your communication skills kept the campsite safe and happy!
+            </p>
+            <button id="modal-btn" onclick="closeModal()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-2xl transition-all shadow-lg shadow-emerald-950">
+                Continue Expedition
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer with informative links and copyright -->
+    <footer class="bg-slate-950 border-t border-slate-900 px-6 py-4 text-center text-xs text-slate-500 mt-auto">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+            <p>&copy; 2026 Camp Wildwood. Supporting Communicative English Grammar Learning with Adaptive Visuals.</p>
+            <div class="flex items-center gap-4 text-slate-400">
+                <span class="hover:text-emerald-400 cursor-pointer transition-colors"><i class="fa-solid fa-circle-question mr-1"></i> How to Play</span>
+                <span class="hover:text-emerald-400 cursor-pointer transition-colors"><i class="fa-solid fa-graduation-cap mr-1"></i> Teacher Guide</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Game State Variables
+        let gameMode = 'adventure'; // 'adventure' or 'ai-chat'
+        let currentQuestIndex = 0;
+        let score = 0;
+        let happiness = 100;
+        let selectedAiCharacter = 'Sophia';
+        let isMuted = false;
+
+        // Custom Web Audio Synthesizer (to prevent standard browser alert and provide gaming SFX)
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtxInstance = null;
+
+        function getAudioContext() {
+            if (!audioCtxInstance) {
+                audioCtxInstance = new AudioCtx();
+            }
+            if (audioCtxInstance.state === 'suspended') {
+                audioCtxInstance.resume();
+            }
+            return audioCtxInstance;
+        }
+
+        // Sound generator helper
+        function playSound(frequency, type, duration, volume = 0.1) {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+                
+                gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+                // Linear decay
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+                osc.connect(gainNode);
+                gainNode.connect(ctx.destination);
+
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (err) {
+                console.warn('Audio synthesis failed or blocked by autoplay settings:', err);
+            }
+        }
+
+        // Trigger thematic sound cues
+        function playSuccessSound() {
+            playSound(523.25, 'triangle', 0.15, 0.15); // C5
+            setTimeout(() => playSound(659.25, 'triangle', 0.25, 0.15), 100); // E5
+        }
+
+        function playErrorSound() {
+            playSound(196.00, 'sawtooth', 0.4, 0.15); // G3
+        }
+
+        function playAmbientSound() {
+            // Crackling fire ambient simulator
+            const interval = setInterval(() => {
+                if (isMuted) clearInterval(interval);
+                // Random low crackling pops
+                if (Math.random() > 0.75) {
+                    playSound(Math.random() * 200 + 50, 'sine', 0.05, 0.02);
+                }
+            }, 100);
+            setTimeout(() => clearInterval(interval), 15000); // Plays for 15s to keep container light
+        }
+
+        // 5 highly interactive and communicatively loaded quests
+        const quests = [
+            {
+                tag: "Quest 1: Darkness in the Forest",
+                speaker: "Sophia",
+                dialogue: "Oh no! The sun is down, and I can't find my flashlight inside my dark tent! 🏕️ Sophia 🐍 is very scared.",
+                clue: "Sophia (she) is a single camper. We have a 🐍 Snake Icon helper! Do we need fruit, or something to see in the dark? Choose correctly!",
+                avatarHighlight: "sophia",
+                options: [
+                    {
+                        text: "She needs a flashlight to see in the dark. 🔦",
+                        isCorrect: true,
+                        feedback: "Excellent! 'She needs' is correct grammar, and a flashlight solves her communication/survival problem!",
+                        scoreGained: 15,
+                        happinessGained: 10
+                    },
+                    {
+                        text: "She need a flashlight. It is very dark. 🔦",
+                        isCorrect: false,
+                        feedback: "Almost! But remember the 🐍 Snake Icon helper: Third person singular (she) always takes 'needs' in present simple!",
+                        scoreGained: 5,
+                        happinessGained: -5
+                    },
+                    {
+                        text: "Does she needs seven oranges right now? 🍊",
+                        isCorrect: false,
+                        feedback: "Double error! 1) In questions with 'does', the main verb stays simple ('need'). 2) Oranges won't help her find her way in the dark!",
+                        scoreGained: 0,
+                        happinessGained: -15
+                    },
+                    {
+                        text: "She needs some watermelons to see the path.",
+                        isCorrect: false,
+                        feedback: "Grammatically correct, but logically confusing! Watermelons do not glow in the dark.",
+                        scoreGained: 5,
+                        happinessGained: -10
+                    }
+                ]
+            },
+            {
+                tag: "Quest 2: Rusty the Puppy is Panting",
+                speaker: "Rusty 🐍",
+                dialogue: "Rusty the camp dog is barking at his water bowl! He 🐍 is very hot after that long hike.",
+                clue: "Think about Rusty (he/it). He is a single animal 🐍. Should we give him juicy oranges, or cool clean water?",
+                avatarHighlight: "rusty",
+                options: [
+                    {
+                        text: "The dog needs some water right away! 💧",
+                        isCorrect: true,
+                        feedback: "Perfect! 'The dog needs' is correct, and Rusty gets hydrated instantly!",
+                        scoreGained: 15,
+                        happinessGained: 10
+                    },
+                    {
+                        text: "Does he needs some paper and pencils? 📝",
+                        isCorrect: false,
+                        feedback: "Oh dear! Rusty cannot write, and 'does' cannot combine with 'needs' (s-ending).",
+                        scoreGained: 0,
+                        happinessGained: -15
+                    },
+                    {
+                        text: "He need water. Rusty is dry! 🐕",
+                        isCorrect: false,
+                        feedback: "Close! He 🐍 is singular, so the verb must be 'needs'. Check the snake rule!",
+                        scoreGained: 5,
+                        happinessGained: -5
+                    }
+                ]
+            },
+            {
+                tag: "Quest 3: Leo's Kitchen Disaster",
+                speaker: "Leo 🐍",
+                dialogue: "We have thirty hungry campers arriving! I must prepare fresh snacks immediately.",
+                clue: "Leo (he) wants to bake fruit snacks. How do we ask about his group's collective fruit demand?",
+                avatarHighlight: "leo",
+                options: [
+                    {
+                        text: "How many apples do they need for the snacks? 🍎",
+                        isCorrect: true,
+                        feedback: "Amazing! 'They' takes 'do' and simple 'need'. This fits the cooking project perfectly!",
+                        scoreGained: 20,
+                        happinessGained: 15
+                    },
+                    {
+                        text: "How many apples does they need? 🍎",
+                        isCorrect: false,
+                        feedback: "Grammar clash! 'They' is plural, so we use 'do they need', not 'does'.",
+                        scoreGained: 5,
+                        happinessGained: -5
+                    },
+                    {
+                        text: "He needs seven oranges for the campers.",
+                        isCorrect: false,
+                        feedback: "Good grammar, but Leo is cooking for thirty campers—they need way more than just seven oranges!",
+                        scoreGained: 10,
+                        happinessGained: 5
+                    }
+                ]
+            },
+            {
+                tag: "Quest 4: The Group Outing Planning",
+                speaker: "Sophia",
+                dialogue: "We are organizing a trek tomorrow morning. Leo and Max need help packing supplies.",
+                clue: "Addressing plural campers (they). Does 'they' require 'need' or 'needs'?",
+                avatarHighlight: "sophia",
+                options: [
+                    {
+                        text: "We need some watermelons and apples for them. 🍉",
+                        isCorrect: true,
+                        feedback: "Spot on! 'We need' works beautifully, and feeding the trekking team ensures happiness!",
+                        scoreGained: 15,
+                        happinessGained: 10
+                    },
+                    {
+                        text: "They needs seven oranges for the hike. 🍊",
+                        isCorrect: false,
+                        feedback: "No snake here! 'They' is plural, so do not add 's'. It must be 'they need'.",
+                        scoreGained: 5,
+                        happinessGained: -5
+                    }
+                ]
+            },
+            {
+                tag: "Quest 5: The Final Inspection Check",
+                speaker: "Leo 🐍",
+                dialogue: "The camp Inspector is checking our inventory forms. Let's make sure our supply forms are spotless!",
+                clue: "Look closely at the auxiliary verbs. Which sentence is perfectly structured?",
+                avatarHighlight: "leo",
+                options: [
+                    {
+                        text: "Does my brother need a marker to update the supply board? 📝",
+                        isCorrect: true,
+                        feedback: "Excellent! 'Does [singular subject] need' is a flawless question format!",
+                        scoreGained: 25,
+                        happinessGained: 20
+                    },
+                    {
+                        text: "My brother needs a marker. 📝",
+                        isCorrect: true,
+                        feedback: "Flawless grammar! My brother 🐍 takes 'needs'. Useful communication!",
+                        scoreGained: 20,
+                        happinessGained: 15
+                    },
+                    {
+                        text: "Do my brother need a marker? 📝",
+                        isCorrect: false,
+                        feedback: "Incorrect grammar! Single brother takes 'Does he...', not 'Do'.",
+                        scoreGained: 0,
+                        happinessGained: -15
+                    }
+                ]
+            }
+        ];
+
+        // Initialize Game
+        window.onload = function() {
+            setGameMode('adventure');
+            loadQuest(0);
+            playAmbientSound();
+        };
+
+        // UI Navigation: Switch Game Mode Tabs
+        function setGameMode(mode) {
+            gameMode = mode;
+            const btnAdventure = document.getElementById('tab-adventure');
+            const btnAiChat = document.getElementById('tab-ai-chat');
+            const adventureScreen = document.getElementById('adventure-screen');
+            const aiChatScreen = document.getElementById('ai-chat-screen');
+
+            if (mode === 'adventure') {
+                btnAdventure.className = "flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-emerald-600 text-white shadow shadow-emerald-950";
+                btnAiChat.className = "flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:bg-slate-800 hover:text-slate-200 flex items-center justify-center gap-2";
+                adventureScreen.classList.remove('hidden');
+                adventureScreen.classList.add('flex');
+                aiChatScreen.classList.add('hidden');
+                aiChatScreen.classList.remove('flex');
+            } else {
+                btnAiChat.className = "flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-emerald-600 text-white shadow shadow-emerald-950";
+                btnAdventure.className = "flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:bg-slate-800 hover:text-slate-200 flex items-center justify-center gap-2";
+                aiChatScreen.classList.remove('hidden');
+                aiChatScreen.classList.add('flex');
+                adventureScreen.classList.add('hidden');
+                adventureScreen.classList.remove('flex');
+                initAiChat();
+            }
+        }
+
+        // Highlight Active avatar based on current scenario
+        function highlightAvatar(charName) {
+            // Reset all avatars
+            const avatars = ['sophia', 'rusty', 'leo'];
+            avatars.forEach(av => {
+                const el = document.getElementById(`avatar-${av}`);
+                if (el) {
+                    el.classList.remove('scale-105', 'opacity-100', 'border-emerald-500', 'border-4');
+                    el.classList.add('scale-90', 'opacity-50');
+                    el.querySelector('.bubble-notif').classList.add('hidden');
+                }
+            });
+
+            const activeEl = document.getElementById(`avatar-${charName.toLowerCase().replace(' 🐍', '')}`);
+            if (activeEl) {
+                activeEl.classList.add('scale-105', 'opacity-100', 'border-emerald-500', 'border-4');
+                activeEl.classList.remove('scale-90', 'opacity-50');
+                activeEl.querySelector('.bubble-notif').classList.remove('hidden');
+            }
+        }
+
+        // Load specific Quest step
+        function loadQuest(index) {
+            if (index >= quests.length) {
+                showFinalReport();
+                return;
+            }
+
+            currentQuestIndex = index;
+            const quest = quests[index];
+            
+            // Render text elements
+            document.getElementById('quest-tag').innerText = quest.tag;
+            document.getElementById('quest-prog').innerText = `Step ${index + 1} of ${quests.length}`;
+            document.getElementById('character-speaker').innerText = quest.speaker;
+            document.getElementById('character-dialogue').innerText = quest.dialogue;
+            document.getElementById('grammar-clue').innerHTML = quest.clue;
+
+            highlightAvatar(quest.speaker);
+
+            // Populate choice options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            quest.options.forEach((opt, idx) => {
+                const optButton = document.createElement('button');
+                optButton.className = "w-full text-left bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 p-4 rounded-2xl flex items-center justify-between transition-all duration-200 group";
+                optButton.onclick = () => selectOption(idx);
+                
+                optButton.innerHTML = `
+                    <span class="text-sm text-slate-200 group-hover:text-emerald-400 font-medium">${opt.text}</span>
+                    <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:text-emerald-400 transition-all group-hover:translate-x-1"></i>
+                `;
+                optionsContainer.appendChild(optButton);
+            });
+        }
+
+        // Handle User selection in Quest Mode
+        function selectOption(optIndex) {
+            const quest = quests[currentQuestIndex];
+            const selectedOpt = quest.options[optIndex];
+
+            // Adjust statistics based on success
+            score += selectedOpt.scoreGained;
+            happiness = Math.max(0, Math.min(100, happiness + selectedOpt.happinessGained));
+
+            // Visual updates
+            document.getElementById('score-val').innerText = score;
+            document.getElementById('happiness-bar').style.width = `${happiness}%`;
+            document.getElementById('happiness-val').innerText = `${happiness}%`;
+
+            if (selectedOpt.isCorrect) {
+                playSuccessSound();
+                showModal(
+                    "🎉 Success! Communicative Clear!", 
+                    selectedOpt.feedback, 
+                    "emerald", 
+                    () => {
+                        currentQuestIndex++;
+                        loadQuest(currentQuestIndex);
+                    }
+                );
+            } else {
+                playErrorSound();
+                showModal(
+                    "❌ Supply Planning Flaw!", 
+                    selectedOpt.feedback, 
+                    "rose", 
+                    () => {
+                        // Let them retry or continue with partial success
+                        if (selectedOpt.scoreGained > 0) {
+                            currentQuestIndex++;
+                            loadQuest(currentQuestIndex);
+                        }
+                    }
+                );
+            }
+        }
+
+        // AI Live Dialogue Role-play logic (Powered by inline Gemini Fetch API)
+        function setAiCharacter(charName) {
+            selectedAiCharacter = charName;
+            
+            // Highlight buttons
+            const chars = ['Sophia', 'Leo', 'Rusty'];
+            chars.forEach(ch => {
+                const el = document.getElementById(`btn-char-${ch.toLowerCase()}`);
+                if (ch === charName) {
+                    el.className = "py-2 px-3 rounded-xl border border-emerald-500 bg-emerald-500/10 text-emerald-400 text-xs font-semibold flex items-center justify-center gap-2 transition-all";
+                } else {
+                    el.className = "py-2 px-3 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 text-xs font-semibold flex items-center justify-center gap-2 transition-all hover:border-slate-700";
+                }
+            });
+
+            highlightAvatar(charName);
+
+            // Seed new dialogue starter
+            const log = document.getElementById('ai-chat-log');
+            log.innerHTML = '';
+            
+            let emoji = '👩‍🌾';
+            let initialText = '';
+            if (charName === 'Sophia') {
+                emoji = '👩‍🌾';
+                initialText = "Hello Expedition Officer! I am planning to inspect the dark campsite tonight. What supplies should we plan for? Make sure you check my needs carefully! 🔦";
+            } else if (charName === 'Leo') {
+                emoji = '👨‍🍳';
+                initialText = "Hey there! The campers are coming back starving. We have apples and oranges in the depot, but I don't know who needs what. Let's arrange some food plans together! 🍎🍊";
+            } else if (charName === 'Rusty') {
+                emoji = '🐕';
+                initialText = "Woof woof! *Rusty wags his tail looking at the supply shelf* 🐕 He needs some refreshing dog biscuits or cool water. Can you help him out?";
+            }
+
+            appendAiChatBubble(charName, emoji, initialText, 'char');
+        }
+
+        function initAiChat() {
+            setAiCharacter(selectedAiCharacter);
+        }
+
+        function appendAiChatBubble(sender, emoji, message, type) {
+            const log = document.getElementById('ai-chat-log');
+            const bubble = document.createElement('div');
+            
+            if (type === 'user') {
+                bubble.className = "flex items-start gap-3 bg-slate-950 p-3 rounded-xl border border-slate-800 self-end ml-12";
+                bubble.innerHTML = `
+                    <div class="flex-grow text-right">
+                        <span class="text-xs font-bold text-sky-400 block font-game">You (Officer)</span>
+                        <p class="text-xs text-slate-200 mt-1">${message}</p>
+                    </div>
+                    <span class="text-xl">📋</span>
+                `;
+            } else {
+                bubble.className = "flex items-start gap-3 bg-slate-900 p-3 rounded-xl border border-slate-800/80 mr-12";
+                bubble.innerHTML = `
+                    <span class="text-xl">${emoji}</span>
+                    <div>
+                        <span class="text-xs font-bold text-emerald-400 block font-game">${sender}</span>
+                        <p class="text-xs text-slate-200 mt-1">${message}</p>
+                    </div>
+                `;
+            }
+            
+            log.appendChild(bubble);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Call Gemini Live API to roleplay and evaluate grammar
+        async function sendAiMessage() {
+            const inputEl = document.getElementById('ai-chat-input');
+            const text = inputEl.value.trim();
+            if (!text) return;
+
+            appendAiChatBubble('You', '📋', text, 'user');
+            inputEl.value = '';
+
+            // Render Loading state
+            const sendBtn = document.getElementById('ai-send-btn');
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i><span>Analyzing...</span>`;
+
+            try {
+                const response = await callGeminiAPI(text);
+                if (response) {
+                    appendAiChatBubble(selectedAiCharacter, getCharEmoji(selectedAiCharacter), response.characterResponse, 'char');
+                    
+                    // Display Grammar coach feedback
+                    const coachPanel = document.getElementById('ai-coach-panel');
+                    const coachText = document.getElementById('ai-coach-text');
+                    coachPanel.classList.remove('hidden');
+                    coachText.innerHTML = `<strong>Grammar Check:</strong> ${response.feedback}`;
+                    
+                    // Handle Points
+                    if (response.pointsAwarded) {
+                        score += response.pointsAwarded;
+                        document.getElementById('score-val').innerText = score;
+                    }
+                }
+            } catch (err) {
+                console.error("Gemini API call failed:", err);
+                appendAiChatBubble(selectedAiCharacter, getCharEmoji(selectedAiCharacter), "I'm having a little trouble thinking of what to say right now, but your sentence looks interesting! Try asking again.", 'char');
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = `<span>Send</span><i class="fa-solid fa-paper-plane"></i>`;
+            }
+        }
+
+        function getCharEmoji(char) {
+            if (char === 'Sophia') return '👩‍🌾';
+            if (char === 'Leo') return '👨‍🍳';
+            return '🐕';
+        }
+
+        // Execute API Post to Gemini with custom roleplay instructions
+        async function callGeminiAPI(userInput) {
+            const apiKey = ""; // Left empty so Canvas can supply runtime credentials safely
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const systemPrompt = `
+                You are playing the role of ${selectedAiCharacter}, a fun camper at Camp Wildwood.
+                Students are talking to you to practice "need" vs "needs" (grammar consistency).
+                
+                You must respond in 2 parts formatted strictly in JSON.
+                - Part 1: "characterResponse" is your natural spoken role-play response to their input.
+                - Part 2: "grammarCorrect" boolean whether they used 'need'/'needs', 'do'/'does', or plural nouns correctly.
+                - Part 3: "feedback" friendly feedback detailing why their grammar was right/wrong (refer to 'need' vs 'needs', he/she/it 🐍 rules). Keep it extremely motivating.
+                - Part 4: "pointsAwarded" number (e.g. 10 for perfect communicative + grammar, 5 for partial, 0 for severe).
+
+                Examples of correct grammar rules to watch out for:
+                - Sophia needs a flashlight / Sophia does not need oranges.
+                - Leo needs apples / Leo does not need water.
+                - Rusty needs water / The dog needs attention.
+                - Do you need water? / How many apples do they need?
+
+                Ensure response is strictly formatted JSON matching this schema:
+                {
+                   "characterResponse": "...",
+                   "grammarCorrect": true,
+                   "feedback": "...",
+                   "pointsAwarded": 10
+                }
+            `;
+
+            const payload = {
+                contents: [{
+                    parts: [{ text: `User message: "${userInput}"` }]
+                }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            characterResponse: { type: "STRING" },
+                            grammarCorrect: { type: "BOOLEAN" },
+                            feedback: { type: "STRING" },
+                            pointsAwarded: { type: "NUMBER" }
+                        },
+                        required: ["characterResponse", "grammarCorrect", "feedback", "pointsAwarded"]
+                    }
+                },
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                }
+            };
+
+            // Implement Exponential Backoff fetch
+            let attempt = 0;
+            const maxAttempts = 3;
+            let delay = 1000;
+
+            while (attempt < maxAttempts) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        const rawJson = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (rawJson) {
+                            return JSON.parse(rawJson);
+                        }
+                    }
+                } catch (e) {
+                    // Fail silently for backoff retries
+                }
+                
+                attempt++;
+                if (attempt < maxAttempts) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2; // exponential backoff
+                }
+            }
+            throw new Error("API completely timed out or was rate-limited.");
+        }
+
+        // Modal System controller
+        let activeModalCallback = null;
+
+        function showModal(title, desc, theme, callback) {
+            const modal = document.getElementById('status-modal');
+            const mTitle = document.getElementById('modal-title');
+            const mDesc = document.getElementById('modal-desc');
+            const mGlow = document.getElementById('modal-glow');
+            const mIcon = document.getElementById('modal-icon');
+
+            mTitle.innerText = title;
+            mDesc.innerText = desc;
+            activeModalCallback = callback;
+
+            if (theme === 'emerald') {
+                mTitle.className = "text-xl font-bold font-game text-emerald-400 mb-2";
+                mGlow.className = "absolute -top-12 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full blur-3xl opacity-20 bg-emerald-500 pointer-events-none";
+                mIcon.innerText = "🏆";
+            } else {
+                mTitle.className = "text-xl font-bold font-game text-rose-400 mb-2";
+                mGlow.className = "absolute -top-12 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full blur-3xl opacity-20 bg-rose-500 pointer-events-none";
+                mIcon.innerText = "⚠️";
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('status-modal').classList.add('hidden');
+            if (activeModalCallback) {
+                activeModalCallback();
+                activeModalCallback = null;
+            }
+        }
+
+        // Final Performance Report Card
+        function showFinalReport() {
+            playSuccessSound();
+            const rating = happiness >= 80 ? "Expert Expedition Officer!" : "Junior Officer - Needs Practice!";
+            const desc = `Congratulations! You scored ${score} total Expedition points. Camp overall Happiness rests at ${happiness}%. Your communicative decisions helped the team survive the wilderness smoothly! Keep exploring!`;
+            
+            showModal(
+                "Final Quest Report Card!",
+                `${rating}\n\n${desc}`,
+                "emerald",
+                () => {
+                    // Reset game
+                    score = 0;
+                    happiness = 100;
+                    document.getElementById('score-val').innerText = score;
+                    document.getElementById('happiness-bar').style.width = '100%';
+                    document.getElementById('happiness-val').innerText = '100%';
+                    loadQuest(0);
+                }
+            );
+        }
+    </script>
+</body>
+</html>
